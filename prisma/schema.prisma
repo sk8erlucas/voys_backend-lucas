@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  name       String?
+  last_name  String?
+  password   String
+  active     Boolean?  @default(true)
+  role_id    Int?      @default(2)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  customer   Customer?
+  role       Role?     @relation(fields: [role_id], references: [id])
+
+  @@index([role_id], map: "users_role_id_fkey")
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model Customer {
+  id               Int          @id @default(autoincrement())
+  phone            String?
+  cuit             String?
+  cbu_cvu          String?
+  company_name     String?
+  owner            String?
+  notes            String?
+  active           Boolean?     @default(true)
+  user_id          Int          @unique
+  customer_type_id Int
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  customer_type    CustomerType @relation(fields: [customer_type_id], references: [id])
+  user             User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  store            Store[]
+
+  @@index([customer_type_id], map: "customers_customer_type_id_fkey")
+  @@map("customers")
+}
+
+model CustomerType {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  customer    Customer[]
+
+  @@map("customer_types")
+}
+
+model Store {
+  id                 Int            @id @default(autoincrement())
+  state              String         @unique @default(uuid())
+  ml_fantazy_name    String?
+  ml_user_id         String?        @unique
+  cut_schedule       String?
+  active             Boolean?       @default(true)
+  vinculated         Boolean?       @default(false)
+  notes              String?
+  customer_id        Int
+  shipping_method_id Int
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  real_name          String?
+  ml_token           MLToken?
+  package            Package[]
+  customer           Customer       @relation(fields: [customer_id], references: [id])
+  shipping_method    ShippingMethod @relation(fields: [shipping_method_id], references: [id])
+
+  @@index([customer_id], map: "stores_customer_id_fkey")
+  @@index([shipping_method_id], map: "stores_shipping_method_id_fkey")
+  @@map("stores")
+}
+
+model MLToken {
+  id               Int      @id @default(autoincrement())
+  ml_access_token  String?
+  ml_refresh_token String?
+  ml_token_type    String?
+  ml_expires_in    Int?
+  ml_scope         String?
+  store_id         Int      @unique
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  store            Store    @relation(fields: [store_id], references: [id], onDelete: Cascade)
+
+  @@map("ml_tokens")
+}
+
+model Package {
+  id                      Int              @id @default(autoincrement())
+  ml_order_id             String           @unique
+  ml_tracking_id          String           @unique
+  ml_status               String
+  ml_substatus            String?
+  ml_zip_code             String?
+  ml_state_name           String?
+  ml_city_name            String?
+  ml_street_name          String?
+  ml_street_number        String?
+  ml_receiver_name        String?
+  ml_delivery_preference  String?
+  ml_status_history       String?          @db.Text
+  store_id                Int
+  route_id                Int?
+  assigned                Boolean?         @default(false)
+  created_at              DateTime         @default(now())
+  updated_at              DateTime         @updatedAt
+  ml_latitude             Decimal?
+  ml_longitude            Decimal?
+  voys_status             String?
+  plant_entry_date        DateTime?
+  order                   Int?
+  liquidated              Boolean          @default(false)
+  Cleared_Delivery_Person Boolean          @default(false)
+  Settled_Customer        Boolean          @default(false)
+  sucursalDestino         String?
+  sucursalOrigen          String?
+  comentarios             String?          @db.VarChar(3200)
+  ingreso                 DateTime?
+  qr_data                 String?          @db.VarChar(255)
+  ml_order_date           DateTime?
+  shipment_label          String?          @db.VarChar(50)
+  ml_comment              String?
+  products                Json?
+  buyer_nickname          String?
+  assignment_date         DateTime?
+  package_history         PackageHistory[] @relation("PackageToHistory")
+  route                   Route?           @relation(fields: [route_id], references: [id])
+  store                   Store            @relation(fields: [store_id], references: [id], onDelete: Cascade)
+
+  @@index([route_id], map: "packages_route_id_fkey")
+  @@index([store_id], map: "packages_store_id_fkey")
+  @@map("packages")
+}
+
+model Route {
+  id                 Int             @id @default(autoincrement())
+  delivery_driver_id Int?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime
+  package            Package[]
+  delivery_driver    DeliveryDriver? @relation(fields: [delivery_driver_id], references: [id])
+
+  @@index([delivery_driver_id], map: "routes_delivery_driver_id_fkey")
+  @@map("routes")
+}
+
+model ShippingMethod {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  store       Store[]
+
+  @@map("shipping_methods")
+}
+
+model DeliveryDriver {
+  id         Int      @id @default(autoincrement())
+  name       String
+  last_name  String
+  phone      String
+  dni        String   @unique
+  notes      String?
+  active     Boolean? @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  mobility   String?
+  route      Route[]
+
+  @@map("delivery_drivers")
+}
+
+model VoysStatus {
+  id              Int      @id @default(autoincrement())
+  name            String
+  slug            String   @unique
+  ml_status_array String   @db.Text
+  description     String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("voys_status")
+}
+
+model PackageHistory {
+  id          Int      @id @default(autoincrement())
+  package_id  Int
+  route_id    Int?
+  fecha       DateTime @default(now())
+  usuario     String
+  estado      String
+  comentarios String?
+  package     Package  @relation("PackageToHistory", fields: [package_id], references: [id], onDelete: Cascade)
+
+  @@index([package_id], map: "package_history_package_id_fkey")
+  @@map("package_history")
+}

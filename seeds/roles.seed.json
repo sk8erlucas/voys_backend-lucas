@@ -1,0 +1,10 @@
+[
+    {
+        "name": "admin",
+        "description": "Admin role (all privileges)"
+    },
+    {
+        "name": "seller",
+        "description": "Seller role (limited privileges)"
+    }
+]

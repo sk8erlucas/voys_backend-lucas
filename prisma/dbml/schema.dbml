@@ -1,0 +1,202 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id Int [pk, increment]
+  email String [unique, not null]
+  name String
+  last_name String
+  password String [not null]
+  active Boolean [default: true]
+  role_id Int [default: 2]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  customer customers
+  role roles
+}
+
+Table roles {
+  id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  users users [not null]
+}
+
+Table customers {
+  id Int [pk, increment]
+  phone String
+  cuit String
+  cbu_cvu String
+  company_name String
+  owner String
+  notes String
+  active Boolean [default: true]
+  user_id Int [unique, not null]
+  customer_type_id Int [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  customer_type customer_types [not null]
+  user users [not null]
+  store stores [not null]
+}
+
+Table customer_types {
+  id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  customer customers [not null]
+}
+
+Table stores {
+  id Int [pk, increment]
+  state String [unique, not null]
+  ml_fantazy_name String
+  ml_user_id String [unique]
+  cut_schedule String
+  active Boolean [default: true]
+  vinculated Boolean [default: false]
+  notes String
+  customer_id Int [not null]
+  shipping_method_id Int [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  real_name String
+  ml_token ml_tokens
+  package packages [not null]
+  customer customers [not null]
+  shipping_method shipping_methods [not null]
+}
+
+Table ml_tokens {
+  id Int [pk, increment]
+  ml_access_token String
+  ml_refresh_token String
+  ml_token_type String
+  ml_expires_in Int
+  ml_scope String
+  store_id Int [unique, not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  store stores [not null]
+}
+
+Table packages {
+  id Int [pk, increment]
+  ml_order_id String [unique, not null]
+  ml_tracking_id String [unique, not null]
+  ml_status String [not null]
+  ml_substatus String
+  ml_zip_code String
+  ml_state_name String
+  ml_city_name String
+  ml_street_name String
+  ml_street_number String
+  ml_receiver_name String
+  ml_delivery_preference String
+  ml_status_history String
+  store_id Int [not null]
+  route_id Int
+  assigned Boolean [default: false]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  ml_latitude Decimal
+  ml_longitude Decimal
+  voys_status String
+  plant_entry_date DateTime
+  order Int
+  liquidated Boolean [not null, default: false]
+  Cleared_Delivery_Person Boolean [not null, default: false]
+  Settled_Customer Boolean [not null, default: false]
+  sucursalDestino String
+  sucursalOrigen String
+  comentarios String
+  ingreso DateTime
+  qr_data String
+  ml_order_date DateTime
+  shipment_label String
+  ml_comment String
+  products Json
+  buyer_nickname String
+  assignment_date DateTime
+  package_history package_history [not null]
+  route routes
+  store stores [not null]
+}
+
+Table routes {
+  id Int [pk, increment]
+  delivery_driver_id Int
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  package packages [not null]
+  delivery_driver delivery_drivers
+}
+
+Table shipping_methods {
+  id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  store stores [not null]
+}
+
+Table delivery_drivers {
+  id Int [pk, increment]
+  name String [not null]
+  last_name String [not null]
+  phone String [not null]
+  dni String [unique, not null]
+  notes String
+  active Boolean [default: true]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  mobility String
+  route routes [not null]
+}
+
+Table voys_status {
+  id Int [pk, increment]
+  name String [not null]
+  slug String [unique, not null]
+  ml_status_array String [not null]
+  description String
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+}
+
+Table package_history {
+  id Int [pk, increment]
+  package_id Int [not null]
+  route_id Int
+  fecha DateTime [default: `now()`, not null]
+  usuario String [not null]
+  estado String [not null]
+  comentarios String
+  package packages [not null]
+}
+
+Ref: users.role_id > roles.id
+
+Ref: customers.customer_type_id > customer_types.id
+
+Ref: customers.user_id - users.id [delete: Cascade]
+
+Ref: stores.customer_id > customers.id
+
+Ref: stores.shipping_method_id > shipping_methods.id
+
+Ref: ml_tokens.store_id - stores.id [delete: Cascade]
+
+Ref: packages.route_id > routes.id
+
+Ref: packages.store_id > stores.id [delete: Cascade]
+
+Ref: routes.delivery_driver_id > delivery_drivers.id
+
+Ref: package_history.package_id > packages.id [delete: Cascade]

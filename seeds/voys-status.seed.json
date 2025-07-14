@@ -1,0 +1,27 @@
+[
+    {
+        "name": "En planta",
+        "slug": "en_planta",
+        "ml_status_array": []
+    },
+    {
+        "name": "En camino",
+        "slug": "en_camino",
+        "ml_status_array": ["shipped", "out_for_deliver", "soon_deliver"]
+    },
+    {
+        "name": "Entregado",
+        "slug": "entregado",
+        "ml_status_array": ["delivered", "delivery_blocked", "waiting_for_confirmation"]
+    },
+    {
+        "name": "No entregado",
+        "slug": "no_entregado",
+        "ml_status_array": ["not_delivered", "bad_address", "receiver_absent", "buyer_rescheduled"]
+    },
+    {
+        "name": "Cancelado",
+        "slug": "cancelado",
+        "ml_status_array": ["cancelled"]
+    }
+]
