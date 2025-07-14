@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y graphicsmagick ghostscript
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias (sin ejecutar postinstall)
-RUN npm ci --only=production --ignore-scripts
+## Instalar todas las dependencias (incluyendo devDependencies) para el build
+RUN npm ci --ignore-scripts
 
 # Instalar PM2 globalmente
 RUN npm install -g pm2
@@ -25,8 +25,12 @@ RUN npx prisma generate
 # Copiar el resto de archivos
 COPY . .
 
+
 # Construir la aplicación
 RUN npm run build
+
+# Eliminar devDependencies para producción
+RUN npm prune --production
 
 EXPOSE 9000
 
