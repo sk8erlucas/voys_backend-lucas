@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
-const bcrypt = require('bcrypt');
+
 
 const prisma = new PrismaClient();
 
@@ -17,11 +17,7 @@ async function readJsonFile(filePath) {
   }
 }
 
-// Función para hashear contraseñas
-async function hashPassword(password) {
-  const saltRounds = 10;
-  return bcrypt.hash(password, saltRounds);
-}
+
 
 // Función principal para sembrar datos
 async function seed() {
@@ -92,16 +88,15 @@ async function seed() {
     const usersData = await readJsonFile('users.seed.json');
     console.log(`👤 Sembrando ${usersData.length} usuarios...`);
     for (const user of usersData) {
-      const hashedPassword = await hashPassword(user.password);
       await prisma.user.upsert({
         where: { email: user.email },
         update: {
-          password: hashedPassword,
+          password: user.password,
           role_id: user.role_id,
         },
         create: {
           email: user.email,
-          password: hashedPassword,
+          password: user.password,
           role_id: user.role_id,
         },
       });
