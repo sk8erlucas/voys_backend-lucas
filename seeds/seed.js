@@ -1,44 +1,16 @@
-import { PrismaClient } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as bcrypt from 'bcrypt';
+const { PrismaClient } = require('@prisma/client');
+const fs = require('fs');
+const path = require('path');
+const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 
-// Interfaces para los tipos de datos en los archivos de semilla
-interface Role {
-  name: string;
-  description: string;
-}
-
-interface CustomerType {
-  name: string;
-  description: string;
-}
-
-interface ShippingMethod {
-  name: string;
-  description: string;
-}
-
-interface User {
-  email: string;
-  password: string;
-  role_id: number;
-}
-
-interface VoysStatus {
-  name: string;
-  slug: string;
-  ml_status_array: string[];
-}
-
 // Función auxiliar para leer archivos JSON
-async function readJsonFile<T>(filePath: string): Promise<T[]> {
+async function readJsonFile(filePath) {
   try {
     const fullPath = path.resolve(__dirname, filePath);
     const fileContent = fs.readFileSync(fullPath, 'utf8');
-    return JSON.parse(fileContent) as T[];
+    return JSON.parse(fileContent);
   } catch (error) {
     console.error(`Error al leer el archivo ${filePath}:`, error);
     return [];
@@ -46,7 +18,7 @@ async function readJsonFile<T>(filePath: string): Promise<T[]> {
 }
 
 // Función para hashear contraseñas
-async function hashPassword(password: string): Promise<string> {
+async function hashPassword(password) {
   const saltRounds = 10;
   return bcrypt.hash(password, saltRounds);
 }
@@ -57,7 +29,7 @@ async function seed() {
     console.log('🌱 Iniciando proceso de siembra de datos...');
 
     // Sembrar roles
-    const rolesData = await readJsonFile<Role>('roles.seed.json');
+    const rolesData = await readJsonFile('roles.seed.json');
     console.log(`📚 Sembrando ${rolesData.length} roles...`);
     for (const role of rolesData) {
       await prisma.role.upsert({
@@ -71,7 +43,7 @@ async function seed() {
     }
 
     // Sembrar tipos de cliente
-    const customerTypesData = await readJsonFile<CustomerType>('customer-types.seed.json');
+    const customerTypesData = await readJsonFile('customer-types.seed.json');
     console.log(`👥 Sembrando ${customerTypesData.length} tipos de cliente...`);
     for (const customerType of customerTypesData) {
       await prisma.customerType.upsert({
@@ -85,7 +57,7 @@ async function seed() {
     }
 
     // Sembrar métodos de envío
-    const shippingMethodsData = await readJsonFile<ShippingMethod>('shipping-methods.seed.json');
+    const shippingMethodsData = await readJsonFile('shipping-methods.seed.json');
     console.log(`🚚 Sembrando ${shippingMethodsData.length} métodos de envío...`);
     for (const shippingMethod of shippingMethodsData) {
       await prisma.shippingMethod.upsert({
@@ -99,7 +71,7 @@ async function seed() {
     }
 
     // Sembrar estados de Voys
-    const voysStatusData = await readJsonFile<VoysStatus>('voys-status.seed.json');
+    const voysStatusData = await readJsonFile('voys-status.seed.json');
     console.log(`🚦 Sembrando ${voysStatusData.length} estados de Voys...`);
     for (const status of voysStatusData) {
       await prisma.voysStatus.upsert({
@@ -117,7 +89,7 @@ async function seed() {
     }
 
     // Sembrar usuarios
-    const usersData = await readJsonFile<User>('users.seed.json');
+    const usersData = await readJsonFile('users.seed.json');
     console.log(`👤 Sembrando ${usersData.length} usuarios...`);
     for (const user of usersData) {
       const hashedPassword = await hashPassword(user.password);
@@ -145,7 +117,7 @@ async function seed() {
 }
 
 // Ejecutar función de siembra
-seed()
+deed()
   .catch((e) => {
     console.error(e);
     process.exit(1);
@@ -153,3 +125,6 @@ seed()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+// Corrección: llamar correctamente a la función seed
+seed();

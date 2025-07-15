@@ -34,5 +34,5 @@ RUN npm prune --production
 
 EXPOSE 9000
 
-# Usa PM2 para ejecutar la aplicación y el seed compilado
+# Usa PM2 para ejecutar la aplicación
 CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && pm2-runtime start ecosystem.config.js"]
