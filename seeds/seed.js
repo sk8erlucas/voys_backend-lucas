@@ -112,7 +112,7 @@ async function seed() {
 }
 
 // Ejecutar función de siembra
-deed()
+seed()
   .catch((e) => {
     console.error(e);
     process.exit(1);
@@ -120,6 +120,3 @@ deed()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
-// Corrección: llamar correctamente a la función seed
-seed();
